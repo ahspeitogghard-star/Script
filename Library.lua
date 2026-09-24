@@ -492,13 +492,13 @@ function OrionLib:MakeWindow(WindowConfig)
         })
 
         -- Containers
-        local ContainerLeft = AddThemeObject(SetChildren(SetProps(Make("ScrollFrame", Color3.fromRGB(180, 180, 180)), {
+                local ContainerLeft = AddThemeObject(SetChildren(SetProps(Make("ScrollFrame", Color3.fromRGB(180, 180, 180)), {
             Size = UDim2.new(0.5, -50, 1, -80), Position = UDim2.new(0, WindowStuff.AbsoluteSize.X + 30, 0, 70),
             Parent = MainWindow, Visible = false, Name = "ItemContainerLeft",
             ScrollBarThickness = 4, ScrollBarImageColor3 = Color3.fromRGB(180, 180, 180), ScrollBarImageTransparency = 0.35,
             ScrollingDirection = Enum.ScrollingDirection.Y, ElasticBehavior = Enum.ElasticBehavior.Never,
             AutomaticCanvasSize = Enum.AutomaticSize.Y
-        }), { Make("List", 0, 20), Make("Padding", 18, 14, 14, 18) }), "Divider")
+        }), { Make("List", 0, 20), Make("Padding", 22, 14, 14, 18) }), "Divider")
         ContainerLeft:SetAttribute("tab", Val.Tab)
 
         local ContainerRight = AddThemeObject(SetChildren(SetProps(Make("ScrollFrame", Color3.fromRGB(180, 180, 180)), {
@@ -507,7 +507,7 @@ function OrionLib:MakeWindow(WindowConfig)
             ScrollBarThickness = 4, ScrollBarImageColor3 = Color3.fromRGB(180, 180, 180), ScrollBarImageTransparency = 0.35,
             ScrollingDirection = Enum.ScrollingDirection.Y, ElasticBehavior = Enum.ElasticBehavior.Never,
             AutomaticCanvasSize = Enum.AutomaticSize.Y
-        }), { Make("List", 0, 20), Make("Padding", 18, 14, 14, 18) }), "Divider")
+        }), { Make("List", 0, 20), Make("Padding", 22, 14, 14, 18) }), "Divider")
         ContainerRight:SetAttribute("tab", Val.Tab)
 
         if Val.FirstTab then
@@ -889,11 +889,14 @@ function OrionLib:MakeWindow(WindowConfig)
             local container = (cfg.Side == "Left") and ContainerLeft or ContainerRight
 
             local Section = Create("Frame", {
-                Size = UDim2.new(1, 0, 0, 0),
+                Size = UDim2.new(1, 0, 0, 30),
                 BackgroundTransparency = 1, BorderSizePixel = 0,
                 Parent = container, Name = "Section",
                 AutomaticSize = Enum.AutomaticSize.Y
             })
+
+            local SectionLayout = Make("List", 0, 0)
+            SectionLayout.Parent = Section
 
             local SectionTitle = AddThemeObject(SetProps(Make("Label", cfg.Name, 14), {
                 Size = UDim2.new(1, -12, 0, 20), Position = UDim2.new(0, 0, 0, 0),
@@ -909,8 +912,11 @@ function OrionLib:MakeWindow(WindowConfig)
                 AutomaticSize = Enum.AutomaticSize.Y
             })
 
-            local HolderList = Make("List", 0, 8)
+                       local HolderList = Make("List", 0, 8)
             HolderList.Parent = Holder
+
+            local HolderPadding = Make("Padding", 8, 0, 0, 0)
+            HolderPadding.Parent = Holder
 
             local elements = BuildElements(Holder)
             return elements
