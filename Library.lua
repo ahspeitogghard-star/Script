@@ -797,13 +797,16 @@ function OrionLib:MakeWindow(WindowConfig)
         if OrionLib.Flags[flag] then OrionLib.Flags[flag]:Destroy() end
     end
 
-    function TabFunction:MakeTab(TabConfig)
+     function TabFunction:MakeTab(TabConfig)
         TabConfig = TabConfig or {}
         TabConfig.Name = TabConfig.Name or "Tab"
         TabConfig.Icon = TabConfig.Icon or ""
 
         Val.Tab = TabConfig.Name
 
+        -- ========================================================
+        -- TAB BUTTON (na sidebar)
+        -- ========================================================
         local TabFrame = SetChildren(SetProps(Make("Button"), {
             Size = UDim2.new(1, 0, 0, 32),
             Parent = TabHolder,
@@ -827,46 +830,25 @@ function OrionLib:MakeWindow(WindowConfig)
             }), "Text")
         })
 
-        function TabWrapper:AddSection(cfg)
-            cfg = cfg or {}
-            cfg.Name = cfg.Name or "Section"
-            cfg.Side = cfg.Side or "Left"
-
-            local container = (cfg.Side == "Left") and ContainerLeft or ContainerRight
-
-            local Section = SetChildren(SetProps(Make("TFrame"), {
-                Size = UDim2.new(1, 0, 0, 10),
-                Parent = container,
-                Name = "Section"
-            }), {
-                AddThemeObject(SetProps(Make("Label", cfg.Name, 14), {
-                    Size = UDim2.new(1, -12, 0, 20),
-                    Position = UDim2.new(0, 0, 0, 0),
-                    Font = Enum.Font.GothamBlack,
-                    Name = "SectionTitle",
-                    TextColor3 = Color3.fromRGB(255, 255, 255)
-                }), "Text"),
-                SetChildren(SetProps(Make("TFrame"), {
-                    Size = UDim2.new(1, 0, 0, 0),
-                    Position = UDim2.new(0, 0, 0, 26),
-                    Name = "Holder"
-                }), {
-                    Make("List", 0, 8),
-                    Create("AutomaticSize", {})   -- deixa o holder crescer sozinho
-                })
-            })
-
-            Section.Holder.AutomaticSize = Enum.AutomaticSize.Y
-
-            AddConnection(Section.Holder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-                Section.Size = UDim2.new(1, 0, 0, Section.Holder.UIListLayout.AbsoluteContentSize.Y + 26)
-                Section.Holder.Size = UDim2.new(1, 0, 0, Section.Holder.UIListLayout.AbsoluteContentSize.Y)
-            end)
-
-            local elements = BuildElements(Section.Holder)
-            return elements
-        end
-
+        -- ========================================================
+        -- CONTAINERS (esquerda / direita)
+        -- ========================================================
+        local ContainerLeft = AddThemeObject(SetChildren(SetProps(Make("ScrollFrame", Color3.fromRGB(180, 180, 180)), {
+            Size = UDim2.new(0.5, -50, 1, -80),
+            Position = UDim2.new(0, WindowStuff.AbsoluteSize.X + 30, 0, 70),
+            Parent = MainWindow,
+            Visible = false,
+            Name = "ItemContainerLeft",
+            ScrollBarThickness = 4,
+            ScrollBarImageColor3 = Color3.fromRGB(180, 180, 180),
+            ScrollBarImageTransparency = 0.35,
+            ScrollingDirection = Enum.ScrollingDirection.Y,
+            ElasticBehavior = Enum.ElasticBehavior.Never,
+            AutomaticCanvasSize = Enum.AutomaticSize.Y
+        }), {
+            Make("List", 0, 20),   -- 20px entre sections
+            Make("Padding", 18, 14, 14, 18)
+        }), "Divider")
         ContainerLeft:SetAttribute("tab", Val.Tab)
 
         local ContainerRight = AddThemeObject(SetChildren(SetProps(Make("ScrollFrame", Color3.fromRGB(180, 180, 180)), {
@@ -879,20 +861,13 @@ function OrionLib:MakeWindow(WindowConfig)
             ScrollBarImageColor3 = Color3.fromRGB(180, 180, 180),
             ScrollBarImageTransparency = 0.35,
             ScrollingDirection = Enum.ScrollingDirection.Y,
-            ElasticBehavior = Enum.ElasticBehavior.Never
+            ElasticBehavior = Enum.ElasticBehavior.Never,
+            AutomaticCanvasSize = Enum.AutomaticSize.Y
         }), {
-            Make("List", 0, 10),
-            Make("Padding", 20, 12, 12, 20)
+            Make("List", 0, 20),
+            Make("Padding", 18, 14, 14, 18)
         }), "Divider")
-
         ContainerRight:SetAttribute("tab", Val.Tab)
-
-        AddConnection(ContainerLeft.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-            ContainerLeft.CanvasSize = UDim2.new(0, 0, 0, ContainerLeft.UIListLayout.AbsoluteContentSize.Y + 10)
-        end)
-        AddConnection(ContainerRight.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-            ContainerRight.CanvasSize = UDim2.new(0, 0, 0, ContainerRight.UIListLayout.AbsoluteContentSize.Y + 10)
-        end)
 
         if Val.FirstTab then
             Val.FirstTab = false
@@ -903,6 +878,9 @@ function OrionLib:MakeWindow(WindowConfig)
             ContainerRight.Visible = true
         end
 
+        -- ========================================================
+        -- TAB SWITCH
+        -- ========================================================
         AddConnection(TabFrame.MouseButton1Click, function()
             for _, tab in ipairs(TabHolder:GetChildren()) do
                 if tab:IsA("TextButton") then
@@ -923,6 +901,9 @@ function OrionLib:MakeWindow(WindowConfig)
             ContainerRight.Visible = true
         end)
 
+        -- ========================================================
+        -- ELEMENT BUILDERS
+        -- ========================================================
         local function BuildElements(ItemParent)
             local E = {}
 
@@ -1495,6 +1476,9 @@ function OrionLib:MakeWindow(WindowConfig)
             return E
         end
 
+        -- ========================================================
+        -- TAB WRAPPER
+        -- ========================================================
         local TabWrapper = {}
 
         function TabWrapper:AddSection(cfg)
@@ -1504,45 +1488,48 @@ function OrionLib:MakeWindow(WindowConfig)
 
             local container = (cfg.Side == "Left") and ContainerLeft or ContainerRight
 
-            -- Section wrapper com padding próprio entre sections
-            local Section = SetChildren(SetProps(Make("TFrame"), {
-                Size = UDim2.new(1, 0, 0, 10),
+            -- Section wrapper — altura automática, sem padding manual
+            local Section = Create("Frame", {
+                Size = UDim2.new(1, 0, 0, 0),
+                BackgroundTransparency = 1,
+                BorderSizePixel = 0,
                 Parent = container,
-                Name = "Section"
-            }), {
-                Make("Padding", 12, 0, 0, 0),   -- 12px embaixo, entre essa section e a próxima
-                AddThemeObject(SetProps(Make("Label", cfg.Name, 14), {
-                    Size = UDim2.new(1, -12, 0, 20),
-                    Position = UDim2.new(0, 2, 0, 0),
-                    Font = Enum.Font.GothamBlack,
-                    Name = "SectionTitle",
-                    TextColor3 = Color3.fromRGB(255, 255, 255)
-                }), "Text"),
-                SetChildren(SetProps(Make("TFrame"), {
-                    Size = UDim2.new(1, 0, 1, -20),
-                    Position = UDim2.new(0, 0, 0, 22),
-                    Name = "Holder"
-                }), {
-                    Make("List", 0, 10)   -- espaço entre os elementos dentro da section
-                })
+                Name = "Section",
+                AutomaticSize = Enum.AutomaticSize.Y
             })
 
-            AddConnection(Section.Holder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-                Section.Size = UDim2.new(1, 0, 0, Section.Holder.UIListLayout.AbsoluteContentSize.Y + 34)
-                Section.Holder.Size = UDim2.new(1, 0, 0, Section.Holder.UIListLayout.AbsoluteContentSize.Y)
-            end)
+            -- Título
+            local SectionTitle = AddThemeObject(SetProps(Make("Label", cfg.Name, 14), {
+                Size = UDim2.new(1, -12, 0, 20),
+                Position = UDim2.new(0, 0, 0, 0),
+                Font = Enum.Font.GothamBlack,
+                Name = "SectionTitle",
+                TextColor3 = Color3.fromRGB(255, 255, 255),
+                BackgroundTransparency = 1
+            }), "Text")
+            SectionTitle.Parent = Section
 
-            local elements = BuildElements(Section.Holder)
+            -- Holder com UIListLayout vertical, altura automática
+            local Holder = Create("Frame", {
+                Size = UDim2.new(1, 0, 0, 0),
+                Position = UDim2.new(0, 0, 0, 26),
+                BackgroundTransparency = 1,
+                BorderSizePixel = 0,
+                Parent = Section,
+                Name = "Holder",
+                AutomaticSize = Enum.AutomaticSize.Y
+            })
+
+            local HolderList = Make("List", 0, 8)   -- gap entre elementos
+            HolderList.Parent = Holder
+
+            local elements = BuildElements(Holder)
             return elements
         end
 
         OrionLib.Tabs[TabConfig.Name] = TabWrapper
         return TabWrapper
     end
-
-    OrionLib.Window = TabFunction
-    return TabFunction
-end
 
 -- ============================================================
 -- CONFIG TAB
