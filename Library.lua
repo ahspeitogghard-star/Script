@@ -1,6 +1,5 @@
 -- OrionLib — custom build
 -- Dark gray, rounded, soft white strokes, topbar logo, resize handles
--- Section as visual box
 -- Author: ANON for dj
 
 local UserInputService = game:GetService("UserInputService")
@@ -496,7 +495,7 @@ function OrionLib:MakeWindow(WindowConfig)
             ScrollBarThickness = 4, ScrollBarImageColor3 = Color3.fromRGB(180, 180, 180), ScrollBarImageTransparency = 0.35,
             ScrollingDirection = Enum.ScrollingDirection.Y, ElasticBehavior = Enum.ElasticBehavior.Never,
             AutomaticCanvasSize = Enum.AutomaticSize.Y
-        }), { Make("List", 0, 14), Make("Padding", 22, 14, 14, 18) }), "Divider")
+        }), { Make("List", 0, 20), Make("Padding", 22, 14, 14, 18) }), "Divider")
         ContainerLeft:SetAttribute("tab", Val.Tab)
 
         local ContainerRight = AddThemeObject(SetChildren(SetProps(Make("ScrollFrame", Color3.fromRGB(180, 180, 180)), {
@@ -505,7 +504,7 @@ function OrionLib:MakeWindow(WindowConfig)
             ScrollBarThickness = 4, ScrollBarImageColor3 = Color3.fromRGB(180, 180, 180), ScrollBarImageTransparency = 0.35,
             ScrollingDirection = Enum.ScrollingDirection.Y, ElasticBehavior = Enum.ElasticBehavior.Never,
             AutomaticCanvasSize = Enum.AutomaticSize.Y
-        }), { Make("List", 0, 14), Make("Padding", 22, 14, 14, 18) }), "Divider")
+        }), { Make("List", 0, 20), Make("Padding", 22, 14, 14, 18) }), "Divider")
         ContainerRight:SetAttribute("tab", Val.Tab)
 
         if Val.FirstTab then
@@ -884,54 +883,51 @@ function OrionLib:MakeWindow(WindowConfig)
 
             local container = (cfg.Side == "Left") and ContainerLeft or ContainerRight
 
-            -- BOX da section — RoundFrame com stroke, envolve tudo
+            -- SECTION BOX: altura automática
             local Section = AddThemeObject(SetChildren(SetProps(Make("RoundFrame", Color3.fromRGB(35, 35, 35), 0, 12), {
-                Size = UDim2.new(1, 0, 0, 60),
+                Size = UDim2.new(1, 0, 0, 0),
                 Parent = container,
                 BackgroundTransparency = 0.25,
-                Name = "Section"
+                Name = "Section",
+                AutomaticSize = Enum.AutomaticSize.Y
             }), {
-                Make("Stroke", Color3.fromRGB(180, 180, 180), 1, 0.45)
+                Make("Stroke", Color3.fromRGB(180, 180, 180), 1, 0.45),
+                Make("Padding", 12, 12, 12, 12),
+                SetChildren(SetProps(Make("TFrame"), {
+                    Size = UDim2.new(1, 0, 0, 0),
+                    Name = "SectionLayout",
+                    AutomaticSize = Enum.AutomaticSize.Y
+                }), {
+                    Make("List", 0, 10)   -- gap entre título e elementos
+                })
             }), "Elements")
 
-            -- Título dentro da box
+            local Layout = Section:FindFirstChild("SectionLayout")
+
+            -- Título
             local SectionTitle = AddThemeObject(SetProps(Make("Label", cfg.Name, 14), {
-                Size = UDim2.new(1, -24, 0, 22),
-                Position = UDim2.new(0, 14, 0, 10),
+                Size = UDim2.new(1, 0, 0, 22),
+                LayoutOrder = 0,
                 Font = Enum.Font.GothamBlack,
                 Name = "SectionTitle",
                 TextColor3 = Color3.fromRGB(255, 255, 255),
                 BackgroundTransparency = 1
             }), "Text")
-            SectionTitle.Parent = Section
+            SectionTitle.Parent = Layout
 
-            -- Divisor fino abaixo do título
-            local Divider = AddThemeObject(SetProps(Create("Frame", {
-                Size = UDim2.new(1, -28, 0, 1),
-                Position = UDim2.new(0, 14, 0, 36),
-                BackgroundTransparency = 0.7,
-                BorderSizePixel = 0
-            }), {}), "Divider")
-            Divider.Parent = Section
-
-            -- Holder dos elementos
+            -- Holder com altura automática
             local Holder = Create("Frame", {
-                Size = UDim2.new(1, -28, 0, 0),
-                Position = UDim2.new(0, 14, 0, 46),
+                Size = UDim2.new(1, 0, 0, 0),
                 BackgroundTransparency = 1,
                 BorderSizePixel = 0,
-                Parent = Section,
-                Name = "Holder"
+                LayoutOrder = 1,
+                Parent = Layout,
+                Name = "Holder",
+                AutomaticSize = Enum.AutomaticSize.Y
             })
 
-            local HolderList = Make("List", 0, 8)
+            local HolderList = Make("List", 0, 8)   -- gap entre elementos
             HolderList.Parent = Holder
-
-            AddConnection(HolderList:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-                local h = HolderList.AbsoluteContentSize.Y
-                Holder.Size = UDim2.new(1, -28, 0, h)
-                Section.Size = UDim2.new(1, 0, 0, h + 60)
-            end)
 
             local elements = BuildElements(Holder)
             return elements
