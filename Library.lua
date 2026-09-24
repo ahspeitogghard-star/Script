@@ -266,7 +266,6 @@ function OrionLib:MakeWindow(WindowConfig)
     WindowConfig.IntroText    = WindowConfig.IntroText    or WindowConfig.Name
     WindowConfig.IntroIcon    = GetIcon(WindowConfig.IntroIcon)
 
-    -- Sidebar tabs
     local TabHolder = AddThemeObject(SetChildren(SetProps(Make("ScrollFrame", Color3.fromRGB(180, 180, 180)), {
         Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Name = "TabHolder"
     }), { Make("List"), Make("Padding", 8, 6, 6, 8) }), "Divider")
@@ -479,7 +478,6 @@ function OrionLib:MakeWindow(WindowConfig)
         TabConfig.Icon = TabConfig.Icon or ""
         Val.Tab = TabConfig.Name
 
-        -- Tab button
         local TabFrame = SetChildren(SetProps(Make("Button"), { Size = UDim2.new(1, 0, 0, 32), Parent = TabHolder, Name = Val.Tab }), {
             AddThemeObject(SetProps(Make("Image", GetIcon(TabConfig.Icon)), {
                 AnchorPoint = Vector2.new(0, 0.5), Size = UDim2.new(0, 18, 0, 18), Position = UDim2.new(0, 10, 0.5, 0),
@@ -491,8 +489,7 @@ function OrionLib:MakeWindow(WindowConfig)
             }), "Text")
         })
 
-        -- Containers
-                local ContainerLeft = AddThemeObject(SetChildren(SetProps(Make("ScrollFrame", Color3.fromRGB(180, 180, 180)), {
+        local ContainerLeft = AddThemeObject(SetChildren(SetProps(Make("ScrollFrame", Color3.fromRGB(180, 180, 180)), {
             Size = UDim2.new(0.5, -50, 1, -80), Position = UDim2.new(0, WindowStuff.AbsoluteSize.X + 30, 0, 70),
             Parent = MainWindow, Visible = false, Name = "ItemContainerLeft",
             ScrollBarThickness = 4, ScrollBarImageColor3 = Color3.fromRGB(180, 180, 180), ScrollBarImageTransparency = 0.35,
@@ -533,7 +530,6 @@ function OrionLib:MakeWindow(WindowConfig)
             ContainerLeft.Visible = true; ContainerRight.Visible = true
         end)
 
-        -- Element builders
         local function BuildElements(ItemParent)
             local E = {}
 
@@ -878,7 +874,6 @@ function OrionLib:MakeWindow(WindowConfig)
             return E
         end
 
-        -- Tab wrapper / AddSection
         local TabWrapper = {}
 
         function TabWrapper:AddSection(cfg)
@@ -891,12 +886,8 @@ function OrionLib:MakeWindow(WindowConfig)
             local Section = Create("Frame", {
                 Size = UDim2.new(1, 0, 0, 30),
                 BackgroundTransparency = 1, BorderSizePixel = 0,
-                Parent = container, Name = "Section",
-                AutomaticSize = Enum.AutomaticSize.Y
+                Parent = container, Name = "Section"
             })
-
-            local SectionLayout = Make("List", 0, 0)
-            SectionLayout.Parent = Section
 
             local SectionTitle = AddThemeObject(SetProps(Make("Label", cfg.Name, 14), {
                 Size = UDim2.new(1, -12, 0, 20), Position = UDim2.new(0, 0, 0, 0),
@@ -908,15 +899,17 @@ function OrionLib:MakeWindow(WindowConfig)
             local Holder = Create("Frame", {
                 Size = UDim2.new(1, 0, 0, 0), Position = UDim2.new(0, 0, 0, 26),
                 BackgroundTransparency = 1, BorderSizePixel = 0,
-                Parent = Section, Name = "Holder",
-                AutomaticSize = Enum.AutomaticSize.Y
+                Parent = Section, Name = "Holder"
             })
 
-                       local HolderList = Make("List", 0, 8)
+            local HolderList = Make("List", 0, 8)
             HolderList.Parent = Holder
 
-            local HolderPadding = Make("Padding", 8, 0, 0, 0)
-            HolderPadding.Parent = Holder
+            AddConnection(HolderList:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+                local h = HolderList.AbsoluteContentSize.Y
+                Holder.Size = UDim2.new(1, 0, 0, h)
+                Section.Size = UDim2.new(1, 0, 0, h + 30)
+            end)
 
             local elements = BuildElements(Holder)
             return elements
@@ -929,7 +922,6 @@ function OrionLib:MakeWindow(WindowConfig)
     OrionLib.Window = TabFunction
     return TabFunction
 end
--- ← FIM da MakeWindow
 
 -- CONFIG TAB
 function OrionLib:SetConfigTab(TabName)
