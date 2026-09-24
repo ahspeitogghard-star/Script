@@ -1480,23 +1480,26 @@ function OrionLib:MakeWindow(WindowConfig)
 
             local container = (cfg.Side == "Left") and ContainerLeft or ContainerRight
 
+            -- Section wrapper com padding próprio entre sections
             local Section = SetChildren(SetProps(Make("TFrame"), {
                 Size = UDim2.new(1, 0, 0, 10),
-                Parent = container
+                Parent = container,
+                Name = "Section"
             }), {
+                Make("Padding", 12, 0, 0, 0),   -- 12px embaixo, entre essa section e a próxima
                 AddThemeObject(SetProps(Make("Label", cfg.Name, 14), {
                     Size = UDim2.new(1, -12, 0, 20),
-                    Position = UDim2.new(0, 2, 0, -6),
+                    Position = UDim2.new(0, 2, 0, 0),
                     Font = Enum.Font.GothamBlack,
                     Name = "SectionTitle",
                     TextColor3 = Color3.fromRGB(255, 255, 255)
                 }), "Text"),
                 SetChildren(SetProps(Make("TFrame"), {
                     Size = UDim2.new(1, 0, 1, -20),
-                    Position = UDim2.new(0, 0, 0, 20),
+                    Position = UDim2.new(0, 0, 0, 22),
                     Name = "Holder"
                 }), {
-                    Make("List", 0, 10)
+                    Make("List", 0, 10)   -- espaço entre os elementos dentro da section
                 })
             })
 
