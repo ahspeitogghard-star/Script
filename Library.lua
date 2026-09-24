@@ -827,21 +827,45 @@ function OrionLib:MakeWindow(WindowConfig)
             }), "Text")
         })
 
-        local ContainerLeft = AddThemeObject(SetChildren(SetProps(Make("ScrollFrame", Color3.fromRGB(180, 180, 180)), {
-            Size = UDim2.new(0.5, -50, 1, -80),
-            Position = UDim2.new(0, WindowStuff.AbsoluteSize.X + 30, 0, 70),
-            Parent = MainWindow,
-            Visible = false,
-            Name = "ItemContainerLeft",
-            ScrollBarThickness = 4,
-            ScrollBarImageColor3 = Color3.fromRGB(180, 180, 180),
-            ScrollBarImageTransparency = 0.35,
-            ScrollingDirection = Enum.ScrollingDirection.Y,
-            ElasticBehavior = Enum.ElasticBehavior.Never
-        }), {
-            Make("List", 0, 10),
-            Make("Padding", 20, 12, 12, 20)
-        }), "Divider")
+        function TabWrapper:AddSection(cfg)
+            cfg = cfg or {}
+            cfg.Name = cfg.Name or "Section"
+            cfg.Side = cfg.Side or "Left"
+
+            local container = (cfg.Side == "Left") and ContainerLeft or ContainerRight
+
+            local Section = SetChildren(SetProps(Make("TFrame"), {
+                Size = UDim2.new(1, 0, 0, 10),
+                Parent = container,
+                Name = "Section"
+            }), {
+                AddThemeObject(SetProps(Make("Label", cfg.Name, 14), {
+                    Size = UDim2.new(1, -12, 0, 20),
+                    Position = UDim2.new(0, 0, 0, 0),
+                    Font = Enum.Font.GothamBlack,
+                    Name = "SectionTitle",
+                    TextColor3 = Color3.fromRGB(255, 255, 255)
+                }), "Text"),
+                SetChildren(SetProps(Make("TFrame"), {
+                    Size = UDim2.new(1, 0, 0, 0),
+                    Position = UDim2.new(0, 0, 0, 26),
+                    Name = "Holder"
+                }), {
+                    Make("List", 0, 8),
+                    Create("AutomaticSize", {})   -- deixa o holder crescer sozinho
+                })
+            })
+
+            Section.Holder.AutomaticSize = Enum.AutomaticSize.Y
+
+            AddConnection(Section.Holder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+                Section.Size = UDim2.new(1, 0, 0, Section.Holder.UIListLayout.AbsoluteContentSize.Y + 26)
+                Section.Holder.Size = UDim2.new(1, 0, 0, Section.Holder.UIListLayout.AbsoluteContentSize.Y)
+            end)
+
+            local elements = BuildElements(Section.Holder)
+            return elements
+        end
 
         ContainerLeft:SetAttribute("tab", Val.Tab)
 
