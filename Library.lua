@@ -23,42 +23,42 @@ local OrionLib = {
 	Connections = {},
 	Flags = {},
 	Tabs = {},
-	Themes = {
-		Default = {
-			Main = {
-				Color = Color3.fromRGB(18, 18, 18),
-				Transparency = 0.05
-			},
-			Stroke = {
-				Color = Color3.fromRGB(200, 200, 200),
-				Transparency = 0.35
-			},
-			Divider = {
-				Color = Color3.fromRGB(200, 200, 200),
-				Transparency = 0.85
-			},
-			Text = {
-				Color = Color3.fromRGB(255, 255, 255),
-				Transparency = 0
-			},
-			TextDark = {
-				Color = Color3.fromRGB(200, 200, 200),
-				Transparency = 0
-			},
-			Elements = {
-				Color = Color3.fromRGB(28, 28, 28),
-				Transparency = 0.4
-			}
-		},
-		MyCustomTheme = {
-			Main = {},
-			Stroke = {},
-			Divider = {},
-			Text = {},
-			TextDark = {},
-			Elements = {}
-		}
-	},
+    Themes = {
+    Default = {
+        Main = {
+            Color = Color3.fromRGB(35, 35, 35),        -- fundo cinza-escuro
+            Transparency = 0.05
+        },
+        Stroke = {
+            Color = Color3.fromRGB(160, 160, 160),     -- borda branca-escura
+            Transparency = 0.4
+        },
+        Divider = {
+            Color = Color3.fromRGB(160, 160, 160),
+            Transparency = 0.85
+        },
+        Text = {
+            Color = Color3.fromRGB(255, 255, 255),
+            Transparency = 0
+        },
+        TextDark = {
+            Color = Color3.fromRGB(200, 200, 200),
+            Transparency = 0
+        },
+        Elements = {
+            Color = Color3.fromRGB(45, 45, 45),        -- fundo das boxes um pouco mais claro
+            Transparency = 0.35
+        }
+    },
+    MyCustomTheme = {
+        Main = {},
+        Stroke = {},
+        Divider = {},
+        Text = {},
+        TextDark = {},
+        Elements = {}
+    }
+},
 	NotificationSettings = {
 		Enabled = true,
 		Printing = true
