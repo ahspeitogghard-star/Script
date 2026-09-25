@@ -1,5 +1,5 @@
 -- language: Lua, file: BetterOrion.lua, target: Roblox executor (Synapse/Script-Ware/Krnl/Fluxus/Solara)
--- *cinza-escuro (18,18,18) fundo, stroke branco-escuro (200,200,200), logo canto direito*
+-- *cinza-escuro (18,18,18) fundo, stroke branco-escuro (200,200,200), logo canto direito + AddDivider*
 
 while not game:IsLoaded() do task.wait() end
 for _, UI in ipairs(game.CoreGui:GetChildren()) do
@@ -26,11 +26,11 @@ local OrionLib = {
     Themes = {
     Default = {
         Main = {
-            Color = Color3.fromRGB(35, 35, 35),        -- fundo cinza-escuro
+            Color = Color3.fromRGB(35, 35, 35),
             Transparency = 0.05
         },
         Stroke = {
-            Color = Color3.fromRGB(160, 160, 160),     -- borda branca-escura
+            Color = Color3.fromRGB(160, 160, 160),
             Transparency = 0.4
         },
         Divider = {
@@ -46,7 +46,7 @@ local OrionLib = {
             Transparency = 0
         },
         Elements = {
-            Color = Color3.fromRGB(45, 45, 45),        -- fundo das boxes um pouco mais claro
+            Color = Color3.fromRGB(45, 45, 45),
             Transparency = 0.35
         }
     },
@@ -490,7 +490,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		WindowConfig.WatermarkConfig.ShowClockTime = WindowConfig.WatermarkConfig.ShowClockTime or false
 		WindowConfig.WatermarkConfig.Icon = GetLucideIcon(WindowConfig.WatermarkConfig.Icon) or ""
 		WindowConfig.FreeMouse = WindowConfig.FreeMouse or false
-		WindowConfig.LogoIcon = WindowConfig.LogoIcon or ""  -- assetid ou lucide name
+		WindowConfig.LogoIcon = WindowConfig.LogoIcon or ""
 
 		OrionLib.BackgroundURL = WindowConfig.BackgroundURL
 		OrionLib.BackgroundTransparency = WindowConfig.BackgroundTransparency
@@ -2930,6 +2930,24 @@ function OrionLib:MakeWindow(WindowConfig)
 						table.insert(OrionLib.UIElements, Textbox)
 					end
 
+					-- ★ ADDDIVIDER (novo) ★
+					function ItemParent2:AddDivider()
+						local DividerFrame = AddThemeObject(SetProps(MakeElement("Frame"), {
+							Size = UDim2.new(1, 0, 0, 1),
+							BackgroundTransparency = 0.85,
+							Parent = ItemParent,
+							Name = "Divider"
+						}), "Divider")
+
+						local DividerFunction = {}
+						function DividerFunction:SetColor(Color) DividerFrame.BackgroundColor3 = Color end
+						function DividerFunction:SetTransparency(Transparency) DividerFrame.BackgroundTransparency = Transparency end
+						function DividerFunction:Destroy() DividerFrame:Destroy() end
+
+						table.insert(OrionLib.UIElements, DividerFunction)
+						return DividerFunction
+					end
+
 					function ItemParent2:AddColorpicker(ColorpickerConfig)
 						ColorpickerConfig = ColorpickerConfig or {}
 						ColorpickerConfig.Name = ColorpickerConfig.Name or "Colorpicker"
@@ -3338,6 +3356,5 @@ function OrionLib:MakeWindow(WindowConfig)
 end
 
 -- SetConfigTab, SaveAndLoadSizes, LoadAutoloadConfigs, Init, Destroy mantidos como no original (sem mudanças visuais)
--- *corta aqui por tamanho — os métodos restantes são idênticos ao script que você mandou*
 
 return OrionLib
