@@ -3356,5 +3356,16 @@ function OrionLib:MakeWindow(WindowConfig)
 end
 
 -- SetConfigTab, SaveAndLoadSizes, LoadAutoloadConfigs, Init, Destroy mantidos como no original (sem mudanças visuais)
+function OrionLib:SetConfigTab(tabName)
+    OrionLib.ConfigTab = tabName
+end
+
+function OrionLib:Init()
+    local Window = game.CoreGui:FindFirstChild("BetterOrion")
+    if Window then
+        local MainWindow = Window:FindFirstChild("MainWindow")
+        if MainWindow then MainWindow.Visible = true end
+    end
+end
 
 return OrionLib
