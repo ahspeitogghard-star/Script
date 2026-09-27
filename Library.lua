@@ -346,15 +346,15 @@ local OrionLib = {
 			NotificationConfig.Content = NotificationConfig.Content or "Notification Content"
 			NotificationConfig.Image = NotificationConfig.Image or "server"
 			NotificationConfig.Time = NotificationConfig.Time or 5
-			NotificationConfig.Color = NotificationConfig.Color or (game.CoreGui:FindFirstChild("BetterOrion") and game.CoreGui.BetterOrion:FindFirstChild("MainWindow") and game.CoreGui.BetterOrion.MainWindow.BackgroundColor3) or Color3.fromRGB(18,18,18)
-			NotificationConfig.TextColor = NotificationConfig.TextColor or (game.CoreGui:FindFirstChild("BetterOrion") and game.CoreGui.BetterOrion:FindFirstChild("MainWindow") and game.CoreGui.BetterOrion.MainWindow:FindFirstChild("TopBar") and game.CoreGui.BetterOrion.MainWindow.TopBar:FindFirstChild("WindowNames") and game.CoreGui.BetterOrion.MainWindow.TopBar.WindowNames:FindFirstChild("WindowName") and game.CoreGui.BetterOrion.MainWindow.TopBar.WindowNames.WindowName.TextColor3) or Color3.fromRGB(240,240,240)
+			NotificationConfig.Color = NotificationConfig.Color or game.CoreGui.BetterOrion.MainWindow.BackgroundColor3
+			NotificationConfig.TextColor = NotificationConfig.TextColor or game.CoreGui.BetterOrion.MainWindow.TopBar.WindowNames.WindowName.TextColor3
 			NotificationConfig.Sound = NotificationConfig.Sound or ""
 			NotificationConfig.SoundVolume = NotificationConfig.SoundVolume or 1
 
 			if NotificationConfig.Sound ~= "" then
 				local sound = Instance.new("Sound")
 				sound.SoundId = NotificationConfig.Sound
-				sound.Parent = game:GetService("Players").LocalPlayer:FindFirstChild("Backpack") or Orion
+				sound.Parent = game:GetService("Players").LocalPlayer:FindFirstChild("Backpack")
 				sound.Volume = NotificationConfig.SoundVolume
 				sound:Play()
 			end
@@ -846,8 +846,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								if not frame:IsA("Frame") then continue end
 								for _3, btn in frame.Holder:GetChildren() do
 									if not btn:IsA("Frame") then continue end
-									local content = btn:FindFirstChild("Content") or (btn:FindFirstChild("F") and btn.F:FindFirstChild("Content"))
-									if not content then continue end
+									local content = btn:FindFirstChild("Content") or btn:FindFirstChild("F"):FindFirstChild("Content")
 									if Text == "" or string.find(string.lower(content.Text), Text) then
 										local tab = container:GetAttribute("tab")
 										if Text ~= "" then ChangeTab(tab) end
@@ -906,7 +905,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			WatermarkStroke = AddThemeObject(Create("UIStroke", {
 				Parent = WatermarkFrame,
 				Thickness = 1,
-				Transparency = WindowConfig.WatermarkConfig.Transparency or 0.4,
+				Transparency = WindowConfig.WatermarkConfig.Transparency,
 			}), "Stroke")
 
 			local IconOffset = 0
@@ -944,7 +943,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				if WindowConfig.WatermarkConfig.ShowFPS then parts[#parts+1] = tostring(math.floor(FPS)) .. " fps" end
 				if WindowConfig.WatermarkConfig.ShowPing then
 					local ping = 0
-					pcall(function() ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()) end)
+					ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
 					parts[#parts+1] = ping .. " ms"
 				end
 				if WindowConfig.WatermarkConfig.ShowClockTime then parts[#parts+1] = os.date("%H:%M:%S") end
@@ -1045,7 +1044,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		end
 
 		AddDraggingFunctionality(DragPoint, MainWindow)
-		if WatermarkFrame then AddDraggingFunctionality(WatermarkFrame, WatermarkFrame) end
+		AddDraggingFunctionality(WatermarkFrame, WatermarkFrame)
 		AddResizingFunctionality(ResizePoint, MainWindow, false)
 		AddResizingFunctionality(ResizePoint2, MainWindow, false)
 		AddResizingFunctionality(ResizeTabHolderPoint, WindowStuff, true)
@@ -1059,6 +1058,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				Name = "Interface Hidden",
 				Content = "Tap "..tostring(WindowConfig.ToggleUIKey):split(".")[3].." to reopen the interface",
 				Time = 3,
+				Color = game.CoreGui.BetterOrion:GetChildren()[2].BackgroundColor3,
+				TextColor = game.CoreGui.BetterOrion:GetChildren()[2].TopBar.WindowName.TextColor3,
 				Image = "activity"
 			})
 			if WindowConfig.FreeMouse then
@@ -1096,6 +1097,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				Name = "Interface Hidden",
 				Content = "Tap "..tostring(WindowConfig.ToggleUIKey):split(".")[3].." to reopen the interface",
 				Time = 3,
+				Color = game.CoreGui.BetterOrion:GetChildren()[2].BackgroundColor3,
+				TextColor = game.CoreGui.BetterOrion:GetChildren()[2].TopBar.WindowNames.WindowName.TextColor3,
 				Image = "activity"
 			})
 		end)
@@ -1111,10 +1114,8 @@ function OrionLib:MakeWindow(WindowConfig)
 			MainWindow.TopBar.BackgroundImage.UICorner.CornerRadius = MainWindow.UICorner.CornerRadius
 			MainWindow.FakeMainWindowNew.BackgroundImage.UICorner.CornerRadius = MainWindow.UICorner.CornerRadius
 			WindowStuff.BackgroundImage.UICorner.CornerRadius = MainWindow.UICorner.CornerRadius
-			if WatermarkFrame and WatermarkFrame.BackgroundImage then
-				WatermarkFrame.BackgroundImage.UICorner.CornerRadius = MainWindow.UICorner.CornerRadius
-			end
-			if WindowConfig.WatermarkConfig.Enabled and WatermarkFrame then
+			WatermarkFrame.BackgroundImage.UICorner.CornerRadius = MainWindow.UICorner.CornerRadius
+			if WindowConfig.WatermarkConfig.Enabled then
 				WatermarkFrame.UICorner.CornerRadius = MainWindow.UICorner.CornerRadius
 			end
 		end)
@@ -1223,9 +1224,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		end
 
 		function TabFunction:SetIconColor(Color)
-			if MainWindow.TopBar:FindFirstChild("WindowIcon") then
-				MainWindow.TopBar.WindowIcon.ImageColor3 = Color
-			end
+			MainWindow.TopBar.WindowIcon.ImageColor3 = Color
 			for i, Tab in next, TabHolder:GetChildren() do
 				if Tab:IsA("TextButton") then
 					Tab.Ico.ImageColor3 = Color
@@ -1238,7 +1237,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			MainWindow.TopBar.BackgroundColor3 = Color
 			MainWindow.BackgroundColor3 = Color
 			WindowStuff.BackgroundColor3 = Color
-			if WindowConfig.WatermarkConfig.Enabled and WatermarkFrame then
+			if WindowConfig.WatermarkConfig.Enabled then
 				WatermarkFrame.BackgroundColor3 = Color
 			end
 		end
@@ -1249,7 +1248,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			if MainWindow.TopBar:FindFirstChild("SearchBar") then
 				MainWindow.TopBar.SearchBar.Stroke.Color = Color
 			end
-			if WindowConfig.WatermarkConfig.Enabled and WatermarkStroke then
+			if WindowConfig.WatermarkConfig.Enabled then
 				WatermarkStroke.Color = Color
 			end
 		end
@@ -1280,7 +1279,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					end
 				end
 			end
-			if WindowConfig.WatermarkConfig.Enabled and WatermarkText then
+			if WindowConfig.WatermarkConfig.Enabled then
 				WatermarkText.TextColor3 = Color
 			end
 		end
@@ -1302,7 +1301,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					end
 				end
 			end
-			if WindowConfig.WatermarkConfig.Enabled and WatermarkText then
+			if WindowConfig.WatermarkConfig.Enabled then
 				WatermarkText.TextTransparency = Transparency
 			end
 		end
@@ -1317,7 +1316,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				MainWindow.BackgroundTransparency = Transparency
 				WindowConfig.Transparency = Transparency
 			end
-			if WindowConfig.WatermarkConfig.Enabled and WatermarkFrame then
+			if WindowConfig.WatermarkConfig.Enabled then
 				WatermarkFrame.BackgroundTransparency = Transparency
 			end
 		end
@@ -1456,7 +1455,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			MainWindow.FakeMainWindowNew.BackgroundImage.Image = WindowConfig.BackgroundURL
 			MainWindow.TopBar.BackgroundImage.Image = WindowConfig.BackgroundURL
 			WindowStuff.BackgroundImage.Image = WindowConfig.BackgroundURL
-			if WindowConfig.WatermarkConfig.Enabled and WatermarkFrame then
+			if WindowConfig.WatermarkConfig.Enabled then
 				WatermarkFrame.BackgroundImage.Image = WindowConfig.BackgroundURL
 			end
 		end
@@ -1466,7 +1465,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			MainWindow.FakeMainWindowNew.BackgroundImage.ImageTransparency = WindowConfig.BackgroundTransparency
 			MainWindow.TopBar.BackgroundImage.ImageTransparency = WindowConfig.BackgroundTransparency
 			WindowStuff.BackgroundImage.ImageTransparency = WindowConfig.BackgroundTransparency
-			if WindowConfig.WatermarkConfig.Enabled and WatermarkFrame then
+			if WindowConfig.WatermarkConfig.Enabled then
 				WatermarkFrame.BackgroundImage.ImageTransparency = WindowConfig.BackgroundTransparency
 			end
 		end
@@ -1478,7 +1477,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			else
 				MainWindow.FakeMainWindowNew.BackgroundImage.Visible = false
 			end
-			if WindowConfig.WatermarkConfig.Enabled and WatermarkFrame then
+			if WindowConfig.WatermarkConfig.Enabled then
 				WatermarkFrame.BackgroundImage.Visible = Bool
 			end
 			MainWindow.TopBar.BackgroundImage.Visible = Bool
@@ -1604,10 +1603,10 @@ function OrionLib:MakeWindow(WindowConfig)
 			ContainerRight:SetAttribute("tab", Val.Tab)
 
 			AddConnection(ContainerLeft.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-				ContainerLeft.CanvasSize = UDim2.new(0, 0, 0, math.max(0, ContainerLeft.UIListLayout.AbsoluteContentSize.Y - 5))
+				ContainerLeft.CanvasSize = UDim2.new(0, 0, 0, ContainerLeft.UIListLayout.AbsoluteContentSize.Y - 5)
 			end)
 			AddConnection(ContainerRight.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-				ContainerRight.CanvasSize = UDim2.new(0, 0, 0, math.max(0, ContainerRight.UIListLayout.AbsoluteContentSize.Y - 5))
+				ContainerRight.CanvasSize = UDim2.new(0, 0, 0, ContainerRight.UIListLayout.AbsoluteContentSize.Y - 5)
 			end)
 
 			if GetOrionIcon(TabConfig.Icon) ~= nil then TabFrame.Ico.Image = GetOrionIcon(TabConfig.Icon) end
@@ -1694,7 +1693,6 @@ function OrionLib:MakeWindow(WindowConfig)
 						function LabelFunction:SetTextColor(Color) LabelFrame.Content.TextColor3 = Color end
 						function LabelFunction:SetTextTransparency(Transparency) LabelFrame.Content.TextTransparency = Transparency end
 						function LabelFunction:SetTransparency(Transparency) LabelFrame.BackgroundTransparency = Transparency end
-						function LabelFunction:Destroy() LabelFrame:Destroy() end
 
 						table.insert(OrionLib.UIElements, LabelFunction)
 						return LabelFunction
@@ -1742,7 +1740,6 @@ function OrionLib:MakeWindow(WindowConfig)
 						function ParagraphFunction:SetTextColor(Color) ParagraphFrame.Content.TextColor3 = Color end
 						function ParagraphFunction:SetTextTransparency(Transparency) ParagraphFrame.Content.TextTransparency = Transparency end
 						function ParagraphFunction:SetTransparency(Transparency) ParagraphFrame.BackgroundTransparency = Transparency end
-						function ParagraphFunction:Destroy() ParagraphFrame:Destroy() end
 
 						table.insert(OrionLib.UIElements, ParagraphFunction)
 						return ParagraphFunction
@@ -1827,7 +1824,6 @@ function OrionLib:MakeWindow(WindowConfig)
 						function Button:SetTextTransparency(Transparency) ButtonFrame.Content.TextTransparency = Transparency end
 						function Button:SetTransparency(Transparency) ButtonFrame.BackgroundTransparency = Transparency end
 						function Button:Set(ButtonText) ButtonFrame.Content.Text = ButtonText end
-						function Button:Destroy() ButtonFrame:Destroy() end
 
 						AddConnection(Click.MouseEnter, function()
 							TweenService:Create(ButtonFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
@@ -1853,23 +1849,21 @@ function OrionLib:MakeWindow(WindowConfig)
 									OrionLib.Themes[OrionLib.SelectedTheme].Elements.Color.B * 255 + 6
 								)
 							}):Play()
-							if not ButtonConfig.DoubleTap then
+							Tap += 1
+							if Tap == 2 and ButtonConfig.DoubleTap then
 								ButtonConfig.Callback()
-							else
-								Tap += 1
-								if Tap == 2 then
-									ButtonConfig.Callback()
+							elseif Tap == 1 and ButtonConfig.DoubleTap then
+								ButtonFrame.Content.Text = "Are you sure?"
+								task.wait(ButtonConfig.TapDelay)
+								if Tap == 1 then
 									Tap = 0
 									ButtonFrame.Content.Text = OldButtonName
-								elseif Tap == 1 then
-									ButtonFrame.Content.Text = "Are you sure?"
-									task.wait(ButtonConfig.TapDelay)
-									if Tap == 1 then
-										Tap = 0
-										ButtonFrame.Content.Text = OldButtonName
-									end
 								end
+							elseif not ButtonConfig.DoubleTap then
+								ButtonConfig.Callback()
 							end
+							Tap = 0
+							ButtonFrame.Content.Text = OldButtonName
 						end)
 
 						AddConnection(Click.MouseButton1Down, function()
@@ -2062,7 +2056,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								BackgroundColor3 = Toggle.Value and ToggleConfig.Color or OrionLib.Themes[OrionLib.SelectedTheme].Divider.Color
 							}):Play()
 							TweenService:Create(ToggleBox.Stroke, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-								Color = Toggle.Value and ToggleConfig.Color or Color3.fromRGB(200, 200, 200)
+									Color = Toggle.Value and ToggleConfig.Color or Color3.fromRGB(200, 200, 200)
 							}):Play()
 							TweenService:Create(ToggleBox.Ico, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
 								ImageTransparency = Toggle.Value and 0 or 1, Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)
@@ -2077,7 +2071,6 @@ function OrionLib:MakeWindow(WindowConfig)
 						function Toggle:SetStrokeColor(Color) ToggleFrame.Stroke.Color = Color end
 						function Toggle:SetStrokeTransparency(Transparency) ToggleFrame.Stroke.Transparency = Transparency end
 						function Toggle:SetTransparency(Transparency) ToggleFrame.BackgroundTransparency = Transparency end
-						function Toggle:Destroy() ToggleFrame:Destroy() end
 
 						Toggle:Set(Toggle.Value)
 
@@ -2308,7 +2301,6 @@ function OrionLib:MakeWindow(WindowConfig)
 						function Slider:SetTransparency(Transparency)
 							SliderFrame.BackgroundTransparency = tonumber(Transparency)
 						end
-						function Slider:Destroy() SliderFrame:Destroy() end
 
 						Slider:Set(Slider.Value)
 						if SliderConfig.Flag then OrionLib.Flags[SliderConfig.Flag] = Slider end
@@ -2327,7 +2319,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						DropdownConfig.MaxSize = DropdownConfig.MaxSize or 5
 						DropdownConfig.Search = DropdownConfig.Search or false
 
-						local Dropdown = {Buttons = {}, Value = DropdownConfig.Default, LastOption = "", Options = DropdownConfig.Options, Toggled = false, Type = "Dropdown", Name = DropdownConfig.Name}
+						local Dropdown = {Buttons = {}, Value = DropdownConfig.Default, LastOption = "", Options = DropdownConfig.Options, Buttons = {}, Toggled = false, Type = "Dropdown", Name = DropdownConfig.Name}
 						local MaxElements = DropdownConfig.MaxSize
 
 						if not table.find(Dropdown.Options, Dropdown.Value) then
@@ -2564,7 +2556,6 @@ function OrionLib:MakeWindow(WindowConfig)
 							end
 						end
 						function Dropdown:SetTransparency(Transparency) DropdownFrame.BackgroundTransparency = Transparency end
-						function Dropdown:Destroy() DropdownFrame:Destroy() end
 
 						local OldSize = 0
 						AddConnection(Click.MouseButton1Click, function()
@@ -2612,7 +2603,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						end
 
 						local Holding = false
-						local Bind, Tap, OldBindName = {Value = "", Binding = false, Type = "Bind", Name = BindConfig.Name}, 0, BindConfig.Name
+						local Bind, Tap, OldBindName = {Value, Binding = false, Type = "Bind", Name = BindConfig.Name}, 0, BindConfig.Name
 
 						local Click = SetProps(MakeElement("Button"), {Size = UDim2.new(1, 0, 1, 0)})
 						local ClickBind = SetProps(MakeElement("Button"), {Size = UDim2.new(1, 0, 1, 0), ZIndex = 2})
@@ -2664,7 +2655,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 						if BindConfig.Button then
 							BindFrame.Image.Visible = true
-							BindBox.Position = UDim2.new(1, -35, 0.5, 0)
+								BindBox.Position = UDim2.new(1, -35, 0.5, 0)
 						end
 
 						AddConnection(BindBox.Value:GetPropertyChangedSignal("Text"), function()
@@ -2799,7 +2790,6 @@ function OrionLib:MakeWindow(WindowConfig)
 						function Bind:SetTextColor(Color) BindFrame.Content.TextColor3 = Color end
 						function Bind:SetTextTransparency(Transparency) BindFrame.Content.TextTransparency = Transparency end
 						function Bind:SetTransparency(Transparency) BindFrame.BackgroundTransparency = Transparency end
-						function Bind:Destroy() BindFrame:Destroy() end
 
 						Bind:Set(BindConfig.Default)
 						if BindConfig.Flag then OrionLib.Flags[BindConfig.Flag] = Bind end
@@ -2814,7 +2804,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						TextboxConfig.TextDisappear = TextboxConfig.TextDisappear or false
 						TextboxConfig.Callback = TextboxConfig.Callback or function() end
 
-						local Textbox = {Value = TextboxConfig.Default, Type = "Textbox", Name = TextboxConfig.Name}
+						local Textbox = {Value, Type = "Textbox", Name = TextboxConfig.Name}
 
 						local Click = SetProps(MakeElement("Button"), {Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1})
 
@@ -2900,7 +2890,6 @@ function OrionLib:MakeWindow(WindowConfig)
 						function Textbox:SetTextColor(Color) TextboxFrame.Content.TextColor3 = Color end
 						function Textbox:SetTextTransparency(Transparency) TextboxFrame.Content.TextTransparency = Transparency end
 						function Textbox:SetTransparency(Transparency) TextboxFrame.BackgroundTransparency = Transparency end
-						function Textbox:Destroy() TextboxFrame:Destroy() end
 
 						TextboxActual.Text = TextboxConfig.Default
 
@@ -2939,10 +2928,9 @@ function OrionLib:MakeWindow(WindowConfig)
 						end)
 
 						table.insert(OrionLib.UIElements, Textbox)
-						return Textbox
 					end
 
-					-- ★ ADDDIVIDER ★
+					-- ★ ADDDIVIDER (novo) ★
 					function ItemParent2:AddDivider()
 						local DividerFrame = AddThemeObject(SetProps(MakeElement("Frame"), {
 							Size = UDim2.new(1, 0, 0, 1),
@@ -2968,11 +2956,8 @@ function OrionLib:MakeWindow(WindowConfig)
 						ColorpickerConfig.Callback = ColorpickerConfig.Callback or function() end
 						ColorpickerConfig.Flag = ColorpickerConfig.Flag or nil
 
-						-- Variáveis locais no escopo da função (correção do vazamento global)
 						local ColorH, ColorS, ColorV = Color3.toHSV(ColorpickerConfig.Default)
 						local TransparencyColor = ColorpickerConfig.DefaultTransparency
-						local ColorInput, HueInput, TransparencyInput
-
 						local Colorpicker = {
 							Value = ColorpickerConfig.Default, TransparencyValue = ColorpickerConfig.DefaultTransparency,
 							Toggled = false, Type = "Colorpicker", Name = ColorpickerConfig.Name
@@ -2999,10 +2984,11 @@ function OrionLib:MakeWindow(WindowConfig)
 
 						local TransparencySelection = Create("ImageLabel", {
 							Size = UDim2.new(0, 18, 0, 18),
-							Position = UDim2.new(0.5, 0, 1 - TransparencyColor),
+							Position = UDim2.new(0.5, 0, 1 - select(1, Color3.toHSV(Colorpicker.Value))),
 							ScaleType = Enum.ScaleType.Fit,
 							AnchorPoint = Vector2.new(0.5, 0.5),
 							BackgroundTransparency = 1,
+							BackgroundColor3 = Color3.fromRGB(255, 0, 0),
 							Image = "http://www.roblox.com/asset/?id=4805639000"
 						})
 
@@ -3197,7 +3183,12 @@ function OrionLib:MakeWindow(WindowConfig)
 							if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 								if ColorInput then
 									ColorInput:Disconnect()
-									ColorInput = nil
+									local ColorX = (math.clamp(Mouse.X - Color.AbsolutePosition.X, 0, Color.AbsoluteSize.X) / Color.AbsoluteSize.X)
+									local ColorY = (math.clamp(Mouse.Y - Color.AbsolutePosition.Y, 0, Color.AbsoluteSize.Y) / Color.AbsoluteSize.Y)
+									ColorSelection.Position = UDim2.new(ColorX, 0, ColorY, 0)
+									ColorS = ColorX
+									ColorV = 1 - ColorY
+									UpdateColorPicker()
 								end
 							end
 						end)
@@ -3217,7 +3208,10 @@ function OrionLib:MakeWindow(WindowConfig)
 							if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 								if HueInput then
 									HueInput:Disconnect()
-									HueInput = nil
+									local HueY = (math.clamp(Mouse.Y - Hue.AbsolutePosition.Y, 0, Hue.AbsoluteSize.Y) / Hue.AbsoluteSize.Y)
+									HueSelection.Position = UDim2.new(0.5, 0, HueY, 0)
+									ColorH = 1 - HueY
+									UpdateColorPicker()
 								end
 							end
 						end)
@@ -3237,7 +3231,10 @@ function OrionLib:MakeWindow(WindowConfig)
 							if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 								if TransparencyInput then
 									TransparencyInput:Disconnect()
-									TransparencyInput = nil
+									local TransparencyY = (math.clamp(Mouse.Y - Transparency.AbsolutePosition.Y, 0, Transparency.AbsoluteSize.Y) / Transparency.AbsoluteSize.Y)
+									TransparencySelection.Position = UDim2.new(0.5, 0, TransparencyY, 0)
+									TransparencyColor = 1 - TransparencyY
+									UpdateColorPicker()
 								end
 							end
 						end)
@@ -3298,7 +3295,6 @@ function OrionLib:MakeWindow(WindowConfig)
 							ResetButton.Content.TextTransparency = Transparency
 						end
 						function Colorpicker:SetTransparency(Transparency) ColorpickerFrame.BackgroundTransparency = Transparency end
-						function Colorpicker:Destroy() ColorpickerFrame:Destroy() end
 
 						Colorpicker:Set(Colorpicker.Value, TransparencyColor, true)
 						if ColorpickerConfig.Flag then OrionLib.Flags[ColorpickerConfig.Flag] = Colorpicker end
@@ -3333,7 +3329,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					}), "Text"),
 					SetChildren(SetProps(MakeElement("TFrame"), {
 						AnchorPoint = Vector2.new(0, 0),
-						Size = UDim2.new(0.5, 0, 1, 0),
+						Size = UDim2.new(1, 0, 1, 0), -- ← CORRIGIDO: era 0.5, agora 1
 						Position = UDim2.new(0, 0, 0, 5),
 						Name = "Holder"
 					}), {
