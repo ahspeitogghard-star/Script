@@ -1,5 +1,6 @@
 -- language: Lua, file: BetterOrion.lua, target: Roblox executor (Synapse/Script-Ware/Krnl/Fluxus/Solara)
 -- *cinza-escuro (18,18,18) fundo, stroke branco-escuro (200,200,200), logo canto direito + AddDivider*
+-- *PATCH BIND: AddBind agora mostra a tecla e dispara desde o default*
 
 while not game:IsLoaded() do task.wait() end
 for _, UI in ipairs(game.CoreGui:GetChildren()) do
@@ -2584,6 +2585,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						return Dropdown
 					end
 
+					-- ★★★ PATCH BIND ★★★
 					function ItemParent2:AddBind(BindConfig)
 						BindConfig = BindConfig or {}
 						BindConfig.Name = BindConfig.Name or "Bind"
@@ -2603,10 +2605,20 @@ function OrionLib:MakeWindow(WindowConfig)
 						end
 
 						local Holding = false
-						local Bind, Tap, OldBindName = {Value, Binding = false, Type = "Bind", Name = BindConfig.Name}, 0, BindConfig.Name
+						local Bind, Tap, OldBindName = {Value = "", Binding = false, Type = "Bind", Name = BindConfig.Name}, 0, BindConfig.Name
 
 						local Click = SetProps(MakeElement("Button"), {Size = UDim2.new(1, 0, 1, 0)})
 						local ClickBind = SetProps(MakeElement("Button"), {Size = UDim2.new(1, 0, 1, 0), ZIndex = 2})
+
+						-- ★ PATCH: label inicial mostra o Default (tecla), não o nome
+						local InitialKeyText = ""
+						if BindConfig.Default ~= nil and BindConfig.Default ~= "" then
+							if typeof(BindConfig.Default) == "EnumItem" then
+								InitialKeyText = BindConfig.Default.Name
+							else
+								InitialKeyText = tostring(BindConfig.Default)
+							end
+						end
 
 						local BindBox = SetChildren(SetProps(MakeElement("RoundFrame", BindConfig.Color, 0, WindowConfig.NewUI and 10 or 6), {
 							Size = UDim2.new(0, 24, 0, 24),
@@ -2619,7 +2631,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								Transparency = 0.35,
 								Name = "Stroke"
 							}),
-							AddThemeObject(SetProps(MakeElement("Label", BindConfig.Name, 14), {
+							AddThemeObject(SetProps(MakeElement("Label", InitialKeyText, 14), {   -- ★ PATCH
 								Size = UDim2.new(1, 0, 1, 0),
 								Font = Enum.Font.GothamBold,
 								TextXAlignment = Enum.TextXAlignment.Center,
@@ -2655,11 +2667,11 @@ function OrionLib:MakeWindow(WindowConfig)
 
 						if BindConfig.Button then
 							BindFrame.Image.Visible = true
-								BindBox.Position = UDim2.new(1, -35, 0.5, 0)
+							BindBox.Position = UDim2.new(1, -35, 0.5, 0)
 						end
 
 						AddConnection(BindBox.Value:GetPropertyChangedSignal("Text"), function()
-							TweenService:Create(BindBox, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, BindBox.Value.TextBounds.X + 16, 0, 24)}):Play()
+							TweenService:Create(BindBox, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, math.max(BindBox.Value.TextBounds.X + 16, 24), 0, 24)}):Play()
 						end)
 
 						AddConnection(ClickBind.InputEnded, function(Input)
@@ -2774,11 +2786,19 @@ function OrionLib:MakeWindow(WindowConfig)
 							}):Play()
 						end)
 
+						-- ★ PATCH: Set guarda o Name da tecla e mantém o texto
 						function Bind:Set(Key)
 							Bind.Binding = false
-							Bind.Value = Key or Bind.Value
-							Bind.Value = Bind.Value.Name or Bind.Value
-							BindBox.Value.Text = Bind.Value
+							if Key == "" or Key == nil then
+								Bind.Value = ""
+								BindBox.Value.Text = ""
+								return
+							end
+							Bind.Value = Key
+							if typeof(Bind.Value) == "EnumItem" then
+								Bind.Value = Bind.Value.Name
+							end
+							BindBox.Value.Text = tostring(Bind.Value)
 							if BindConfig.UIBind then
 								WindowConfig.ToggleUIKey = Bind.Value
 							end
@@ -2791,7 +2811,9 @@ function OrionLib:MakeWindow(WindowConfig)
 						function Bind:SetTextTransparency(Transparency) BindFrame.Content.TextTransparency = Transparency end
 						function Bind:SetTransparency(Transparency) BindFrame.BackgroundTransparency = Transparency end
 
+						-- ★ PATCH: aplica o Default (tecla) logo de cara
 						Bind:Set(BindConfig.Default)
+
 						if BindConfig.Flag then OrionLib.Flags[BindConfig.Flag] = Bind end
 						table.insert(OrionLib.UIElements, Bind)
 						return Bind
@@ -3329,7 +3351,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					}), "Text"),
 					SetChildren(SetProps(MakeElement("TFrame"), {
 						AnchorPoint = Vector2.new(0, 0),
-						Size = UDim2.new(1, 0, 1, 0), -- ← CORRIGIDO: era 0.5, agora 1
+						Size = UDim2.new(1, 0, 1, 0),
 						Position = UDim2.new(0, 0, 0, 5),
 						Name = "Holder"
 					}), {
